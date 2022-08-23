@@ -5,6 +5,7 @@ import { InteractionManager, View, Text, ActivityIndicator, StyleSheet } from 'r
 import immutable from 'immutable';
 import { Button } from 'react-native-elements';
 import Swiper from 'react-native-swiper';
+import PropTypes from 'prop-types';
 
 import { connect } from 'react-redux';
 import * as actions from '../actions'

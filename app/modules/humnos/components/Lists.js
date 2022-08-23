@@ -68,7 +68,7 @@ class Lists extends Component {
     }
 
 
-    componentWillReceiveProps(nextProps) {
+    componentUNSAFE_WillReceiveProps(nextProps) {
         
         if( nextProps.humnos.get('status') === 'FILTER_DONE' )
         {

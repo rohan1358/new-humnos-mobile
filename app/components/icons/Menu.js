@@ -1,4 +1,4 @@
-import React, { Component, PropTypes } from 'react'; 
+import React, { Component } from 'react'; 
 import { View, StyleSheet, TouchableHighlight, InteractionManager, Image, Navigator } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 

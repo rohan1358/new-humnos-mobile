@@ -3,14 +3,15 @@
 import React, { Component } from 'react'; 
 import { View, Text, StyleSheet, Platform, StatusBar, Image, InteractionManager } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { StackNavigator, TabNavigator } from 'react-navigation';
+import { createAppContainer } from 'react-navigation';
+import { createTabNavigator } from "react-navigation-tabs";
+import { createStackNavigator } from "react-navigation-stack";
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import {bindActionCreators} from 'redux';
 import { connect } from 'react-redux';
 
 import * as configs from './constants/configs';
-
-import Router from 'react-native-simple-router';
 import HeaderTitle from './components/HeaderTitle';
 import humnos from './modules/humnos';
 import announcements from './modules/announcements';
@@ -19,6 +20,168 @@ import embunPagi from './modules/embunPagi';
 import Home from './components/Home';
 import Info from './components/Info';
 
+const MainScreenNavigator = createTabNavigator({
+  Home: { 
+      screen: Home, 
+      navigationOptions: {
+          tabBarLabel: 'Home',
+          tabBarIcon: ({ tintColor }) => (
+              <Icon name="ios-home-outline" size={20} style={[styles.icon, {color: tintColor}]} />
+          ),
+      } 
+  },
+  About: { 
+      screen: Info, 
+      navigationOptions: {
+          tabBarLabel: 'About',
+          tabBarIcon: ({ tintColor }) => (
+              <Icon name="ios-information-circle-outline" size={20} style={[styles.icon, {color: tintColor}]} />
+          ),
+      } 
+  }
+},{
+  initialRouteName: 'Home',
+  swipeEnabled: false,
+  tabBarOptions: {
+      activeTintColor: configs.color.font.accent,
+      inactiveTintColor: configs.color.font.primary,
+      showIcon: true,
+      tabStyle: {
+          justifyContent: 'center',
+          alignItems: 'center'
+      },
+      labelStyle: {
+          marginTop: 0,
+          fontSize: 11
+      },
+      indicatorStyle: {
+          backgroundColor: 'transparent'
+      },
+      style: {
+          height: 50,
+          backgroundColor: configs.color.themes.primary,
+          justifyContent: 'center'
+      }
+  },
+});
+
+const HumnosApp = createStackNavigator({
+  Main: { 
+      screen: MainScreenNavigator,
+      navigationOptions: {
+          headerTitle: (
+              <HeaderTitle title="HUMNOS" />
+          ),
+          headerStyle: {
+              backgroundColor: configs.color.themes.primary,
+              paddingTop: 0,
+              height: 50
+          }
+      } 
+  },
+  Announcement: { 
+      screen: announcements.components.Detail,
+      navigationOptions: {
+          headerTitle: (
+              <HeaderTitle title="PENGUMUMAN" headerLeftRight={true} />
+          ),
+          headerLeft: (
+              <View />
+          ),
+          headerStyle: {
+              backgroundColor: configs.color.themes.primary,
+              paddingTop: 0,
+              height: 50
+          }
+      } 
+  },
+  Humnos: { 
+      screen: humnos.components.Lists,
+      navigationOptions: {
+          headerTitle: (
+              <HeaderTitle title="HUMNOS" headerLeftRight={true} />
+          ),
+          headerStyle: {
+              backgroundColor: configs.color.themes.primary,
+              paddingTop: 0,
+              height: 50
+          }
+      } 
+  },
+  HumnosDetail: { 
+      screen: humnos.components.Detail,
+      navigationOptions: {
+          headerLeft: (
+              <View />
+          ),
+          headerStyle: {
+              backgroundColor: configs.color.themes.primary,
+              paddingTop: 0,
+              height: 50
+          }
+      } 
+  },
+  GaramKeluarga: { 
+      screen: garamKeluarga.components.Lists,
+      navigationOptions: {
+          headerTitle: (
+              <HeaderTitle title="Garam Keluarga" headerLeftRight={true} />
+          ),
+          headerStyle: {
+              backgroundColor: configs.color.themes.primary,
+              paddingTop: 0,
+              height: 50
+          }
+      } 
+  },
+  GaramDetail: { 
+      screen: garamKeluarga.components.Detail,
+      navigationOptions: {
+          headerTitle: (
+              <HeaderTitle title="Garam Keluarga" headerLeftRight={true} />
+          ),
+          headerLeft: (
+              <View />
+          ),
+          headerStyle: {
+              backgroundColor: configs.color.themes.primary,
+              paddingTop: 0,
+              height: 50
+          }
+      } 
+  },
+  EmbunPagi: { 
+      screen: embunPagi.components.Lists,
+      navigationOptions: {
+          headerTitle: (
+              <HeaderTitle title="Embun Pagi" headerLeftRight={true} />
+          ),
+          headerStyle: {
+              backgroundColor: configs.color.themes.primary,
+              paddingTop: 0,
+              height: 50
+          }
+      } 
+  },
+  EmbunDetail: { 
+      screen: embunPagi.components.Detail,
+      navigationOptions: {
+          headerTitle: (
+              <HeaderTitle title="Embun Pagi" headerLeftRight={true} />
+          ),
+          headerLeft: (
+              <View />
+          ),
+          headerStyle: {
+              backgroundColor: configs.color.themes.primary,
+              paddingTop: 0,
+              height: 50
+          }
+      } 
+  }
+});
+
+const AppContainer = createAppContainer(HumnosApp);
 
 class App extends Component {
   
@@ -32,7 +195,7 @@ class App extends Component {
     }
   
     componentDidMount() {
-        InteractionManager.runAfterInteractions(() => {
+      InteractionManager.runAfterInteractions(() => {
             this.props.actions.humnos.getLagu();
             this.props.actions.announcements.gets();
             this.props.actions.garamKeluarga.gets(true);
@@ -40,8 +203,12 @@ class App extends Component {
         });
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentDidUpdate(nextProps, nextState) {
+      console.log(nextProps, nextState, "DID UPDATE")
+    }
 
+    componentUNSAFE_WillReceiveProps(nextProps) {
+      console.log("Will Receive Props")
         if( nextProps.humnos.get('status') === 'GET_LIST_DONE' && nextProps.announcements.get('status') === 'GET_LIST_DONE' && nextProps.garamKeluarga.get('status') === 'GET_LIST_DONE' && nextProps.embunPagi.get('status') === 'GET_LIST_DONE'  ) {
             InteractionManager.runAfterInteractions(() => {
                 this.props.actions.humnos.setIdle();
@@ -67,187 +234,34 @@ class App extends Component {
     }
 
     render() {
-
-        const MainScreenNavigator = TabNavigator({
-            Home: { 
-                screen: Home, 
-                navigationOptions: {
-                    tabBarLabel: 'Home',
-                    tabBarIcon: ({ tintColor }) => (
-                        <Icon name="ios-home-outline" size={20} style={[styles.icon, {color: tintColor}]} />
-                    ),
-                } 
-            },
-            About: { 
-                screen: Info, 
-                navigationOptions: {
-                    tabBarLabel: 'About',
-                    tabBarIcon: ({ tintColor }) => (
-                        <Icon name="ios-information-circle-outline" size={20} style={[styles.icon, {color: tintColor}]} />
-                    ),
-                } 
-            }
-        },{
-            initialRouteName: 'Home',
-            swipeEnabled: false,
-            tabBarOptions: {
-                activeTintColor: configs.color.font.accent,
-                inactiveTintColor: configs.color.font.primary,
-                showIcon: true,
-                tabStyle: {
-                    justifyContent: 'center',
-                    alignItems: 'center'
-                },
-                labelStyle: {
-                    marginTop: 0,
-                    fontSize: 11
-                },
-                indicatorStyle: {
-                    backgroundColor: 'transparent'
-                },
-                style: {
-                    height: 50,
-                    backgroundColor: configs.color.themes.primary,
-                    justifyContent: 'center'
-                }
-            },
-        });
-        
-
-        const HumnosApp = StackNavigator({
-            Main: { 
-                screen: MainScreenNavigator,
-                navigationOptions: {
-                    headerTitle: (
-                        <HeaderTitle title="HUMNOS" />
-                    ),
-                    headerStyle: {
-                        backgroundColor: configs.color.themes.primary,
-                        paddingTop: 0,
-                        height: 50
-                    }
-                } 
-            },
-            Announcement: { 
-                screen: announcements.components.Detail,
-                navigationOptions: {
-                    headerTitle: (
-                        <HeaderTitle title="PENGUMUMAN" headerLeftRight={true} />
-                    ),
-                    headerLeft: (
-                        <View />
-                    ),
-                    headerStyle: {
-                        backgroundColor: configs.color.themes.primary,
-                        paddingTop: 0,
-                        height: 50
-                    }
-                } 
-            },
-            Humnos: { 
-                screen: humnos.components.Lists,
-                navigationOptions: {
-                    headerTitle: (
-                        <HeaderTitle title="HUMNOS" headerLeftRight={true} />
-                    ),
-                    headerStyle: {
-                        backgroundColor: configs.color.themes.primary,
-                        paddingTop: 0,
-                        height: 50
-                    }
-                } 
-            },
-            HumnosDetail: { 
-                screen: humnos.components.Detail,
-                navigationOptions: {
-                    headerLeft: (
-                        <View />
-                    ),
-                    headerStyle: {
-                        backgroundColor: configs.color.themes.primary,
-                        paddingTop: 0,
-                        height: 50
-                    }
-                } 
-            },
-            GaramKeluarga: { 
-                screen: garamKeluarga.components.Lists,
-                navigationOptions: {
-                    headerTitle: (
-                        <HeaderTitle title="Garam Keluarga" headerLeftRight={true} />
-                    ),
-                    headerStyle: {
-                        backgroundColor: configs.color.themes.primary,
-                        paddingTop: 0,
-                        height: 50
-                    }
-                } 
-            },
-            GaramDetail: { 
-                screen: garamKeluarga.components.Detail,
-                navigationOptions: {
-                    headerTitle: (
-                        <HeaderTitle title="Garam Keluarga" headerLeftRight={true} />
-                    ),
-                    headerLeft: (
-                        <View />
-                    ),
-                    headerStyle: {
-                        backgroundColor: configs.color.themes.primary,
-                        paddingTop: 0,
-                        height: 50
-                    }
-                } 
-            },
-            EmbunPagi: { 
-                screen: embunPagi.components.Lists,
-                navigationOptions: {
-                    headerTitle: (
-                        <HeaderTitle title="Embun Pagi" headerLeftRight={true} />
-                    ),
-                    headerStyle: {
-                        backgroundColor: configs.color.themes.primary,
-                        paddingTop: 0,
-                        height: 50
-                    }
-                } 
-            },
-            EmbunDetail: { 
-                screen: embunPagi.components.Detail,
-                navigationOptions: {
-                    headerTitle: (
-                        <HeaderTitle title="Embun Pagi" headerLeftRight={true} />
-                    ),
-                    headerLeft: (
-                        <View />
-                    ),
-                    headerStyle: {
-                        backgroundColor: configs.color.themes.primary,
-                        paddingTop: 0,
-                        height: 50
-                    }
-                } 
-            }
-        });
+      // console.log(this.props.humnos, "STEP 1")
+      // console.log(this.props.announcements, "STEP 2")
+      // console.log(this.props.garamKeluarga, "STEP 3")
+      // console.log(this.props.embunPagi, "STEP 4")
+      // console.log(this.state, "STATE")
 
         if( !this.state.loading ) {
             return (
-                <View style={styles.container}>
-                     <StatusBar
-                         backgroundColor={configs.color.themes.dark}
-                         barStyle="light-content"/>
-                    <HumnosApp/>
-                </View>
+              <SafeAreaProvider style={{ flex: 1 }}>
+                  <View style={styles.container}>
+                      <StatusBar
+                          backgroundColor={configs.color.themes.dark}
+                          barStyle="light-content"/>
+                      <AppContainer/>
+                  </View>
+                </SafeAreaProvider>
             );
         }
 
         return (
+          <SafeAreaProvider style={{ flex: 1 }}>
             <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
                 <Image 
                     style={{width: configs.dimension.width, height: configs.dimension.height}}
                     resizeMode={'stretch'}
                     source={require('./images/splash.png')} />
             </View>
+          </SafeAreaProvider>
         )
     
     }

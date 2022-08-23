@@ -86,7 +86,7 @@ class Lists extends Component {
     */
 
 
-    componentWillReceiveProps(nextProps) {
+    componentUNSAFE_WillReceiveProps(nextProps) {
         
         if( nextProps.garamKeluarga.get('status') === 'GET_LIST_DONE' )
         {

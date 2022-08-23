@@ -12,14 +12,11 @@ function errorCB(err) {
 
 export function getLagu(callback)
 {
-    SQLite.openDatabase({name : 'humnos', createFromLocation : '~db/humnos'}).then((DB) => {
+    SQLite.openDatabase({name : 'humnos.sqlite', createFromLocation : '~db/humnos.sqlite'}).then((DB) => {
         db = DB;
-         
         var lagu = [];
 
-        db.executeSql('SELECT * FROM lagu').then((results) => {
-            
-            
+        DB.executeSql('SELECT * FROM lagu').then((results) => {
             var len = results[0].rows.length;
 
             if( len > 0 ) {            	
@@ -33,10 +30,11 @@ export function getLagu(callback)
 
             }
 
-            db.close();
+            DB.close();
             callback(lagu);
             
-        }).catch((error) => { 
+        }, (reject) => {
+        }).catch((error) => {
             errorCB(error);
         });
         

@@ -84,7 +84,7 @@ class Lists extends Component {
     */
 
 
-    componentWillReceiveProps(nextProps) {
+    componentUNSAFE_WillReceiveProps(nextProps) {
         
         if( nextProps.embunPagi.get('status') === 'GET_LIST_DONE' )
         {
@@ -215,7 +215,7 @@ class Lists extends Component {
 
     }
 
-    renderRow = (item: Object, sectionID, rowID) => {
+    renderRow = (item, sectionID, rowID) => {
         return (
             
             <Card key={item.ep_id} data={item} onPress={() => this.goToDetail(item) } onShare={() => this.onShare(item) } />
